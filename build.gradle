@@ -4,6 +4,8 @@ plugins {
 }
 
 android {
+	namespace 'tool.compet.core'
+
 	compileSdk 31
 
 	defaultConfig {
