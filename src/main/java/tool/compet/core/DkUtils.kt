@@ -11,7 +11,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.media.ExifInterface
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
@@ -26,6 +25,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.RequiresPermission
+import androidx.core.content.FileProvider
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -299,8 +299,30 @@ object DkUtils {
 	 * Also add this line to Manifest.xml: android:configChanges="keyboardHidden|orientation|screenSize"
 	 */
 	fun lockOrientation(host: Activity) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-			host.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+		host.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+	}
+
+	/**
+	 * Store bitmap to app-internal cache directory, and return
+	 * the URI path which can be used to share with another apps.
+	 *
+	 * Ref:
+	 * - https://www.geeksforgeeks.org/how-to-share-image-of-your-app-with-another-app-in-android/
+	 * - https://developer.android.com/training/sharing/send
+	 *
+	 * @param authority Package name of FileProvider declared at xml file.
+	 * @param file Target file which be read.
+	 */
+	fun getUriForFile(
+		context: Context,
+		authority: String,
+		file: File,
+	): Uri? {
+		return try {
+			FileProvider.getUriForFile(context, authority, file)
+		}
+		catch (e: Exception) {
+			null
 		}
 	}
 
@@ -316,32 +338,21 @@ object DkUtils {
 	}
 
 	/**
-	 * Caller must grant permission `DkConst.WRITE_EXTERNAL_STORAGE`.
+	 * @param uris URIs to files. For eg,. to make an URI from a bitmap, caller can call `createUriForBitmap()`.
 	 */
-	fun share(context: Context, message: String?, bitmaps: Iterable<Bitmap?>? = null): Boolean {
-		val intent = Intent()
-		intent.action = Intent.ACTION_SEND
-		intent.type = "text/plain"
-		intent.putExtra(Intent.EXTRA_TEXT, message)
+	fun share(context: Context, subject: String, message: String, uris: ArrayList<Uri>? = null): Boolean {
+		val intent = Intent().apply {
+			this.action = Intent.ACTION_SEND
+			this.type = "text/plain"
+			this.putExtra(Intent.EXTRA_SUBJECT, subject);
+			this.putExtra(Intent.EXTRA_TEXT, message)
+		}
 
-		if (bitmaps != null && bitmaps.count() > 0) {
-			if (!checkPermission(context, DkConst.WRITE_EXTERNAL_STORAGE)) {
-				return false
-			}
-
-			val uris = ArrayList<Uri>()
-			for (bitmap in bitmaps) {
-				if (bitmap != null) {
-					val bitmapPath = MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "share", null)
-					val uri = Uri.parse(bitmapPath)
-					uris.add(uri)
-				}
-			}
-			if (uris.size > 0) {
-				intent.action = Intent.ACTION_SEND_MULTIPLE
-				intent.type = "image/*"
-				intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
-			}
+		// Attach files
+		if (uris != null && uris.isNotEmpty()) {
+			intent.action = Intent.ACTION_SEND_MULTIPLE
+			intent.type = "image/*"
+			intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
 		}
 
 		context.startActivity(Intent.createChooser(intent, "share"))
@@ -353,11 +364,8 @@ object DkUtils {
 	 * @return TRUE iff it is api 21+ and battery is in save-mode. Otherwise FALSE.
 	 */
 	fun isPowerSaveMode(context: Context): Boolean {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-			return powerManager.isPowerSaveMode
-		}
-		return false
+		val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+		return powerManager.isPowerSaveMode
 	}
 
 	@JvmStatic
