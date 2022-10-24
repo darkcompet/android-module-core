@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -208,7 +209,7 @@ public class DkFiles {
 	}
 
 	public static BufferedReader newUtf8Reader(File file) throws Exception {
-		return new BufferedReader(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
+		return new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 	}
 
 	public static BufferedWriter newUtf8Writer(File file) throws Exception {
@@ -216,7 +217,7 @@ public class DkFiles {
 	}
 
 	public static BufferedWriter newUtf8Writer(File file, boolean append) throws Exception {
-		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, append), Charset.forName("UTF-8")));
+		return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, append), StandardCharsets.UTF_8));
 	}
 
 	public static List<File> collectFilesRecursively(File dir) {
