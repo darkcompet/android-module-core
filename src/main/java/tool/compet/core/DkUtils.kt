@@ -369,10 +369,10 @@ object DkUtils {
 	}
 
 	@JvmStatic
-	fun checkPermission(context: Context, vararg permissions: String?): Boolean {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && permissions != null) {
+	fun checkPermission(context: Context, vararg permissions: String): Boolean {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			for (permission in permissions) {
-				if (context.checkSelfPermission(permission!!) != PackageManager.PERMISSION_GRANTED) {
+				if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
 					return false
 				}
 			}
