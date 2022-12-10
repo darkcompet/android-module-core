@@ -4,8 +4,6 @@
 package tool.compet.core
 
 import android.app.Activity
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -18,7 +16,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Looper
 import android.os.PowerManager
-import android.os.Process
 import android.provider.MediaStore
 import android.view.Surface
 import android.view.View
@@ -162,16 +159,24 @@ object DkUtils {
 		}
 	}
 
-	fun restartApp(context: Context, startActivity: Class<*>?) {
-		val startIntent = Intent(context, startActivity)
-		val pendingIntent = PendingIntent.getActivity(
-			context,
-			Process.myPid(),
-			startIntent,
-			PendingIntent.FLAG_CANCEL_CURRENT
-		)
-		val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-		alarm?.set(AlarmManager.RTC, System.currentTimeMillis() + 200, pendingIntent)
+	fun restartApp(context: Context, startActivity: Class<*>, delayMillis: Long = 200L) {
+		// Old version:
+		//val startIntent = Intent(context, startActivity)
+		//val pendingIntent = PendingIntent.getActivity(
+		//	context,
+		//	Process.myPid(),
+		//	startIntent,
+		//	PendingIntent.FLAG_CANCEL_CURRENT
+		//)
+		//val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+		//alarm.set(AlarmManager.RTC, System.currentTimeMillis() + delayMillis, pendingIntent)
+		//Runtime.getRuntime().exit(0)
+
+		val packageManager = context.packageManager
+		val intent = packageManager.getLaunchIntentForPackage(context.packageName)
+		val componentName = intent!!.component
+		val mainIntent = Intent.makeRestartActivityTask(componentName)
+		context.startActivity(mainIntent)
 		Runtime.getRuntime().exit(0)
 	}
 

@@ -16,15 +16,15 @@ public class DkLocaleHelper {
 	 * Change locale of given context.
 	 *
 	 * @param context Current context
-	 * @param lang Next language to change.
+	 * @param langCode Next language to change, for eg,. vn, jp,...
 	 * @return Localed context
 	 */
-	public static ContextWrapper wrapLocale(Context context, String lang) {
+	public static ContextWrapper changeLocale(Context context, String langCode) {
 		final Locale systemLocale = DkConfig.appLocale(context);
 
-		if (! DkConst.EMPTY_STRING.equals(lang) && ! systemLocale.getLanguage().equals(lang)) {
+		if (! DkConst.EMPTY_STRING.equals(langCode) && ! systemLocale.getLanguage().equals(langCode)) {
 			Configuration config = context.getResources().getConfiguration();
-			Locale locale = new Locale(lang);
+			Locale locale = new Locale(langCode);
 			Locale.setDefault(locale);
 
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -34,12 +34,7 @@ public class DkLocaleHelper {
 				config.locale = locale;
 			}
 
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-				context = context.createConfigurationContext(config);
-			}
-			else {
-				context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
-			}
+			context = context.createConfigurationContext(config);
 		}
 
 		return new ContextWrapper(context);
