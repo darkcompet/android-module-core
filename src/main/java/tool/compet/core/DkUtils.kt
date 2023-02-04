@@ -327,6 +327,7 @@ object DkUtils {
 			FileProvider.getUriForFile(context, authority, file)
 		}
 		catch (e: Exception) {
+			DkLogs.error(this, e)
 			null
 		}
 	}
