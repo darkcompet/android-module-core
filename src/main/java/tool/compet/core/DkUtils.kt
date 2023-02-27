@@ -68,9 +68,9 @@ object DkUtils {
 	}
 
 	@Throws(Exception::class)
-	fun execCommand(command: String?) {
+	fun runCommand(command: String) {
 		val utf8Result: MutableList<String> = ArrayList()
-		execCommand(command, utf8Result)
+		runCommand(command, utf8Result)
 	}
 
 	/**
@@ -78,7 +78,7 @@ object DkUtils {
 	 * @throws Exception when cannot detect OS type
 	 */
 	@Throws(Exception::class)
-	fun execCommand(command: String?, utf8Result: MutableList<String>?) {
+	fun runCommand(command: String, utf8Result: MutableList<String>?) {
 		val osname = System.getProperty("os.name").lowercase(Locale.getDefault())
 		val processBuilder = ProcessBuilder()
 		if (osname.contains("win")) {
@@ -107,12 +107,12 @@ object DkUtils {
 		}
 	}
 
-	fun stream2string(`is`: InputStream?): String {
+	fun stream2string(inputStream: InputStream): String {
 		var line: String?
 		val ls = DkConst.LS
 		val sb = StringBuilder(256)
 		try {
-			BufferedReader(InputStreamReader(`is`)).use { br ->
+			BufferedReader(InputStreamReader(inputStream)).use { br ->
 				while (br.readLine().also { line = it } != null) {
 					sb.append(line).append(ls)
 				}

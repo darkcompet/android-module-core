@@ -22,69 +22,21 @@ fun String?.parseBooleanDk(): Boolean {
 }
 
 fun String?.parseIntDk(): Int {
-	if (this == null) {
-		return 0
+	return try {
+		if (this == null) 0 else java.lang.Integer.parseInt(this)
 	}
-
-	val N = this.length
-	var result = 0
-	var minus = false
-	var index = 0
-
-	// Skip plus digit
-	while (index < N && this[index] == '+') {
-		++index
+	catch (ignore: Exception) {
+		0
 	}
-	// Check minus number
-	while (index < N && this[index] == '-') {
-		++index
-		minus = !minus
-	}
-
-	// Read continuous numder-digits
-	while (index < N) {
-		val ch = this[index++]
-		if (ch in '0'..'9') {
-			result = (result shl 3) + (result shl 1) + (ch - '0') // 10x + d
-		}
-		else {
-			break
-		}
-	}
-	return if (minus) -result else result
 }
 
 fun String?.parseLongDk(): Long {
-	if (this == null) {
-		return 0
+	return try {
+		if (this == null) 0L else java.lang.Long.parseLong(this)
 	}
-
-	val N = this.length
-	var result: Long = 0
-	var minus = false
-	var index = 0
-
-	// Skip plus digit
-	while (index < N && this[index] == '+') {
-		++index
+	catch (ignore: Exception) {
+		0L
 	}
-	// Check minus number
-	while (index < N && this[index] == '-') {
-		++index
-		minus = !minus
-	}
-
-	// Read continuous numder-digits
-	while (index < N) {
-		val ch = this[index++]
-		if (ch in '0'..'9') {
-			result = (result shl 3) + (result shl 1) + (ch - '0') // 10x + d
-		}
-		else {
-			break
-		}
-	}
-	return if (minus) -result else result
 }
 
 fun String?.parseFloatDk(): Float {
